@@ -138,7 +138,6 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     :param kmer_size: (int) A fournir mais non utilise cette annee
     :return: (list) A list of all the [OTU (str), count (int)] .
     """
-
     # Lecture du fichier de sequences
     iterator_counts = dereplication_fulllength(amplicon_file=amplicon_file,\
         minseqlen=minseqlen,mincount=mincount) 
@@ -178,7 +177,10 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
     :param OTU_list: (list) A list of OTU sequences
     :param output_file: (Path) Path to the output file
     """
-    pass
+    with open(output_file, "w") as file_output:
+        for index_OTU, OTU in enumerate(OTU_list):
+            file_output.write(f">OTU_{index_OTU} occurence:{OTU[1]}\n\
+                {textwrap.fill(OTU[0], width=80)}\n")
 
 
 #==============================================================
