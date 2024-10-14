@@ -96,7 +96,8 @@ def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int)
     :param amplicon_file: (Path) Path to the amplicon file in FASTA.gz format.
     :param minseqlen: (int) Minimum amplicon sequence length
     :param mincount: (int) Minimum amplicon count
-    :return: A generator object that provides a (list)[sequences, count] of sequence with a count >= mincount and a length >= minseqlen.
+    :return: A generator object that provides a (list)[sequences, count] of sequence with a
+    count >= mincount and a length >= minseqlen.
     """
     sequences_fasta = read_fasta(amplicon_file, minseqlen)
     # Conversion du Generator : List
@@ -106,23 +107,23 @@ def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int)
     # Récupération des séquences uniques
     unique_list = set(liste_fasta)
     # print(len(unique_list))
-    
     # Comptage d'occurences
     print("Comptage des occurences")
     output = [[sequence, liste_fasta.count(sequence)] for sequence in unique_list]
     for couple_occurence in output:
-        if couple_occurence[1]> minseqlen:
+        if couple_occurence[1]> mincount:
             yield couple_occurence
-    
+
 
 def get_identity(alignment_list: List[str]) -> float:
     """Compute the identity rate between two sequences
 
-    :param alignment_list:  (list) A list of aligned sequences in the format ["SE-QUENCE1", "SE-QUENCE2"]
+    :param alignment_list:  (list) A list of aligned sequences in the format
+    ["SE-QUENCE1", "SE-QUENCE2"]
     :return: (float) The rate of identity between the two sequences.
     """
     score = 0.0
-    for align1, align2 in zip(alignment_list[0], alignment_list[1]): 
+    for align1, align2 in zip(alignment_list[0], alignment_list[1]):
         if align1 == align2:
             score += 1.0
     return score / max(len(alignment_list[0]), len(alignment_list[1]))
@@ -140,18 +141,18 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     """
     # Lecture du fichier de sequences
     iterator_counts = dereplication_fulllength(amplicon_file=amplicon_file,\
-        minseqlen=minseqlen,mincount=mincount) 
+        minseqlen=minseqlen,mincount=mincount)
     liste_counts = list(iterator_counts)
 
     # Creation d'une liste d'OTU : vide
-    liste_OTU = []
+    liste_otu = []
 
     # Parcours chaque séquence
     for index_seq, sequence in enumerate(liste_counts):
-        is_OTU = True    
+        is_otu = True
         # Comparaison de la séquence au reste des séquences
         for other_sequence in liste_counts[index_seq:]:
-            # Ne pas comparer la séquences à elle-même 
+            # Ne pas comparer la séquences à elle-même
             if other_sequence != sequence:
                 # Générer l'alignement
                 align = nw.global_align(sequence, other_sequence, gap_open=-1,\
@@ -165,10 +166,10 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
                     print("OTU")
                 else:
                     print("OTU")
-                    is_OTU = False        
+                    is_otu = False
             # Incrementer la liste d'OTU
-            if is_OTU:
-                liste_OTU.append(sequence)
+            if is_otu:
+                liste_otu.append(sequence)
 
 
 def write_OTU(OTU_list: List, output_file: Path) -> None:
@@ -178,9 +179,9 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
     :param output_file: (Path) Path to the output file
     """
     with open(output_file, "w") as file_output:
-        for index_OTU, OTU in enumerate(OTU_list):
-            file_output.write(f">OTU_{index_OTU} occurence:{OTU[1]}\n\
-                {textwrap.fill(OTU[0], width=80)}\n")
+        for index_otu, otu in enumerate(OTU_list):
+            file_output.write(f">OTU_{index_otu} occurence:{otu[1]}\n\
+                {textwrap.fill(otu[0], width=80)}\n")
 
 
 #==============================================================
@@ -204,7 +205,6 @@ def main(): # pragma: no cover
 
     print("Comptage des occurences")
     print(len([[sequence, list_seq.count(sequence)] for sequence in unique_list]))
-    
     # list_unique = dereplication_fulllength(FILENAME, 5, 3)
     # print(len(list_unique))
 
